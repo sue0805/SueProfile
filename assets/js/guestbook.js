@@ -10,106 +10,74 @@ const imgs = ['https://images.unsplash.com/photo-1553830591-42e4fd7035ec?ixlib=r
             'https://images.unsplash.com/photo-1553482790-e3fcacee02c7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80']
 
 $(document).ready(function(){
-    // $.ajax({
-    //     url : 'http://localhost/rest/list',
-    //     type : 'GET',
-    //     dataType : 'json'
-    // }).done(function(data){
-    //     data.forEach((el, index) => {
-    //         if(index >= data.length - 3){
-    //             var wrap = $('.guestbook')
-    //             var htmlString = `<div class="post">
-    //                                 <div class="post__media"><img src="${el.imgurl}" alt=""/></div>
-    //                                 <div class="post__body">
-    //                                     <div class="post__meta"><span class="date">${new Date(el.date).toDateString()}</span><span class="author"><a>by ${el.name}</a></span></div>
-    //                                     <h2 class="post__title">${el.subject}</h2>
-    //                                     <p class="post__text">${el.message}</p>
-    //                                 </div>
-    //                             </div>`
-    //             wrap.prepend(htmlString)
-    //         }
-    //         guestbook.unshift(el)
-    //     })
-    // })
-
-    var wrap = $('.guestbook')
-    var htmlString = `<div class="post">
-                        <div class="post__media"><img src="https://images.unsplash.com/photo-1524238063286-88c560edab8e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1351&q=80" alt=""/></div>
-                        <div class="post__body">
-                            <div class="post__meta"><span class="date">${new Date('2019-03-29').toDateString()}</span><span class="author"><a>by 강수정</a></span></div>
-                            <h2 class="post__title">방명록 서비스 중지</h2>
-                            <p class="post__text">
-                                AWS 계정 문제로 방명록 서비스를 잠시 중지했습니다.<br>
-                                연락은 메일로 주세요!<br>
-                                방명록이 써지는 것 처럼 보이긴 합니다....
-                            </p>
-                        </div>
-                    </div>`
-    wrap.prepend(htmlString)
-
+    $.ajax({
+        url : 'https://nodeserver.ssue0805.now.sh/api/guestbooks',
+        type : 'GET',
+        dataType : 'json'
+    }).done(function({guestbooks}){
+        if(guestbooks == null) return
+        guestbookList = Object.keys(guestbooks).map(key => ({...guestbooks[key]}))
+        guestbookList.forEach((el, index) => {
+            if(index >= guestbookList.length - 3){
+                var wrap = $('.guestbook')
+                var htmlString = `<div class="post">
+                                    <div class="post__media"><img src="${el.imgUrl}" alt=""/></div>
+                                    <div class="post__body">
+                                        <div class="post__meta"><span class="date">${new Date(el.date).toDateString()}</span><span class="author"><a>by ${el.name}</a></span></div>
+                                        <h2 class="post__title">${el.subject}</h2>
+                                        <p class="post__text">${el.message}</p>
+                                    </div>
+                                </div>`
+                wrap.prepend(htmlString)
+            }
+            guestbook.unshift(el)
+        })
+    })
 })
 
 $('#guestbook-submit').click(function(){
 
-    let form = $('input, textarea')
+    let form = $('#guestbook input, #guestbook textarea')
 
     let name = form[0].value
     let email = form[1].value
     let subject = form[2].value
     let message = form[3].value.split('\n').join('<br>')
+    let imgUrl = imgs[Math.floor(Math.random() * imgs.length)]
 
-    let post = {name : name, email : email, subject : subject, message : message, date : new Date().toDateString()}
+    let post = {name : name, email : email, subject : subject, message : message, date : new Date().toDateString(), imgUrl : imgUrl}
 
     if(name.length == 0 || subject.length == 0 || message.length == 0){
         alert('이름, 제목 혹은 내용을 입력해주세요')
     }
 
-    var wrap = $('.guestbook')
-    var htmlString = `<div class="post">
-                        <div class="post__media"><img src="${imgs[Math.floor(Math.random() * imgs.length)]}" alt=""/></div>
-                        <div class="post__body">
-                            <div class="post__meta"><span class="date">${new Date().toDateString()}</span><span class="author"><a>by ${name}</a></span></div>
-                            <h2 class="post__title">${subject}</h2>
-                            <p class="post__text">${message}</p>
-                        </div>
-                    </div>`
-    wrap.prepend(htmlString)
-    guestbook.unshift(post)
-    form[0].value = ''
-    form[1].value = ''
-    form[2].value = ''
-    form[3].value = ''
-    $(document).scrollTop(0)
+    $.ajax({
+        url : 'https://nodeserver.ssue0805.now.sh/api/guestbooks/insert',
+        type : 'POST',
+        data : JSON.stringify(post),
+        contentType : 'application/json; charset=utf-8'
+    }).done(function(data){
+        if(data.guestbooks === 1){
+            var wrap = $('.guestbook')
+            var htmlString = `<div class="post">
+                                <div class="post__media"><img src="${post.imgUrl}" alt=""/></div>
+                                <div class="post__body">
+                                    <div class="post__meta"><span class="date">${new Date(post.date).toDateString()}</span><span class="author"><a>by ${post.name}</a></span></div>
+                                    <h2 class="post__title">${post.subject}</h2>
+                                    <p class="post__text">${post.message}</p>
+                                </div>
+                            </div>`
+            if(wrap.children().length % 3 == 0) wrap.children().last().remove()
+            wrap.prepend(htmlString)
+            guestbook.unshift(post)
+            form[0].value = ''
+            form[1].value = ''
+            form[2].value = ''
+            form[3].value = ''
+            $(document).scrollTop($('#guestbook').offset().top)
+        }
 
-    // $.ajax({
-    //     url : 'http://localhost/rest/insert',
-    //     type : 'POST',
-    //     data : {
-    //         name : name,
-    //         email : email,
-    //         subject : subject,
-    //         message : message
-    //     }
-    // }).done(function(data){
-    //     var wrap = $('.guestbook')
-    //     var htmlString = `<div class="post">
-    //                         <div class="post__media"><img src="${data.imgurl}" alt=""/></div>
-    //                         <div class="post__body">
-    //                             <div class="post__meta"><span class="date">${new Date(data.date).toDateString()}</span><span class="author"><a>by ${data.name}</a></span></div>
-    //                             <h2 class="post__title">${data.subject}</h2>
-    //                             <p class="post__text">${data.message}</p>
-    //                         </div>
-    //                     </div>`
-    //     if(wrap.children().length % 3 == 0) wrap.children().last().remove()
-    //     wrap.prepend(htmlString)
-    //     guestbook.unshift(data)
-    //     form[0].value = ''
-    //     form[1].value = ''
-    //     form[2].value = ''
-    //     form[3].value = ''
-    //     $(document).scrollTop(0)
-
-    // })
+    })
     
 })
 
@@ -120,7 +88,7 @@ $('#guestbook-load').click(function(){
     for(i; i < end; i++){
         var wrap = $('.guestbook')
         var htmlString = `<div class="post">
-                            <div class="post__media"><img src="${guestbook[i].imgurl}" alt=""/></div>
+                            <div class="post__media"><img src="${guestbook[i].imgUrl}" alt=""/></div>
                             <div class="post__body">
                                 <div class="post__meta"><span class="date">${new Date(guestbook[i].date).toDateString()}</span><span class="author"><a>by ${guestbook[i].name}</a></span></div>
                                 <h2 class="post__title">${guestbook[i].subject}</h2>

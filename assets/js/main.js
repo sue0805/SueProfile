@@ -301,7 +301,3 @@ $('#back-to-down').on('click', function () {
 	}, 700);
 });
 })();
-
-function copy(){
-	
-}
