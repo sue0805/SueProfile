@@ -1841,6 +1841,24 @@ ul {
     height: 100%;
 }
 
+.hb_skill_container {
+    width: 100%;
+    text-align: center;
+}
+
+.hb_skill {
+    width: 60px;
+    margin: 5px;
+    height: 60px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    background-color: white;
+    object-fit: contain;
+    overflow: hidden;
+    display: inline-block;
+}
+
 /* Effect */
 
 .ef-push-bottom .hb_back, .ef-move-top .hb_back {
@@ -2365,6 +2383,24 @@ ul {
 
 .work-detail__entry .work-img {
     margin-top: 30px;
+}
+
+.work_skill_container {
+    width: 100%;
+    padding: 20px 0;
+}
+
+.work_skill {
+    width: 60px;
+    margin: 5px;
+    height: 60px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    background-color: white;
+    object-fit: contain;
+    overflow: hidden;
+    display: inline-block;
 }
 
 /* 19. work
