@@ -746,6 +746,9 @@ ul {
     text-align: center;
 }
 
+.about_photo {
+    height: 100%;
+}
 .about__text {
     font-size: 14px;
     margin-bottom: 40px;
