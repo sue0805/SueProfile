@@ -49,6 +49,7 @@ $('#guestbook-submit').click(function(){
 
     if(name.length == 0 || subject.length == 0 || message.length == 0){
         alert('이름, 제목 혹은 내용을 입력해주세요')
+        return
     }
 
     $.ajax({
